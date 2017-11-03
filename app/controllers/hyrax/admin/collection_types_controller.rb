@@ -90,7 +90,12 @@ module Hyrax
       end
 
       def collection_type_params
+        params[:collection_type][:share_applies_to_collection] = (params[:collection_type][:share_applies_to] == 'collection_and_new_works') ||
+                                                                 (params[:collection_type][:share_applies_to] == 'collection')
+        params[:collection_type][:share_applies_to_new_works] = (params[:collection_type][:share_applies_to] == 'collection_and_new_works') ||
+                                                                (params[:collection_type][:share_applies_to] == 'new_works')
         params.require(:collection_type).permit(:title, :description, :nestable, :discoverable, :sharable,
+                                                :share_applies_to_collection, :share_applies_to_new_works,
                                                 :allow_multiple_membership, :require_membership, :assigns_workflow, :assigns_visibility)
       end
   end

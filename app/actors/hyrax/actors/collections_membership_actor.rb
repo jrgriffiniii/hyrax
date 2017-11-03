@@ -47,6 +47,8 @@ module Hyrax
         # being created directly in that collection.
         def extract_collection_id(env, collection_ids)
           return unless collection_ids && collection_ids.size == 1
+          collection = ::Collection.find(collection_ids.first)
+          return unless collection.collection_type.share_applies_to_new_works?
           env.attributes[:collection_id] = collection_ids.first
         end
     end

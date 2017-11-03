@@ -21,7 +21,8 @@ module Hyrax
     end
 
     class_attribute :collection_type_settings_methods, instance_writer: false
-    self.collection_type_settings_methods = [:nestable?, :discoverable?, :sharable?, :allow_multiple_membership?,
+    self.collection_type_settings_methods = [:nestable?, :discoverable?, :sharable?, :share_applies_to_collection?,
+                                             :share_applies_to_new_works?, :allow_multiple_membership?,
                                              :require_membership?, :assigns_workflow?, :assigns_visibility?]
 
     # These are provided as a convenience method based on prior design discussions.
@@ -82,39 +83,31 @@ module Hyrax
       where(nestable: true).any?
     end
 
-    # Find or create the default collection type as defined by:
+    # Find or create the user collection type as defined by:
     #
     # * USER_COLLECTION_MACHINE_ID
     # * USER_COLLECTION_DEFAULT_TITLE
-    # * Hyrax::CollectionTypes::CreateService::DEFAULT_OPTIONS
+    # * Hyrax::CollectionTypes::CreateService::USER_COLLECTION_OPTIONS
     #
     # @see Hyrax::CollectionTypes::CreateService
     #
     # @return [Hyrax::CollectionType] where machine_id = USER_COLLECTION_MACHINE_ID
-    def self.find_or_create_default_collection_type
-      find_by(machine_id: USER_COLLECTION_MACHINE_ID) || Hyrax::CollectionTypes::CreateService.create_collection_type
+    def self.find_or_create_user_collection_type
+      find_by(machine_id: USER_COLLECTION_MACHINE_ID) || Hyrax::CollectionTypes::CreateService.create_user_collection_type
     end
+    singleton_class.send(:alias_method, :find_or_create_default_collection_type, :find_or_create_user_collection_type)
 
     # Find or create the Admin Set collection type as defined by:
     #
     # * ADMIN_SET_MACHINE_ID
     # * ADMIN_SET_DEFAULT_TITLE
-    # * Options to override Hyrax::CollectionTypes::CreateService::DEFAULT_OPTIONS
+    # * Hyrax::CollectionTypes::CreateService::ADMIN_SET_OPTIONS
     #
     # @see Hyrax::CollectionTypes::CreateService
     #
     # @return [Hyrax::CollectionType] where machine_id = ADMIN_SET_MACHINE_ID
     def self.find_or_create_admin_set_type
-      return find_by_machine_id(ADMIN_SET_MACHINE_ID) if exists?(machine_id: ADMIN_SET_MACHINE_ID)
-      options = {
-        description: 'A collection type that provides Admin Set functionality.',
-        nestable: false, discoverable: true, sharable: true, allow_multiple_membership: false,
-        require_membership: true, assigns_workflow: true, assigns_visibility: true,
-        participants: [{ agent_type: Hyrax::CollectionTypeParticipant::GROUP_TYPE, agent_id: ::Ability.admin_group_name, access: Hyrax::CollectionTypeParticipant::MANAGE_ACCESS },
-                       { agent_type: Hyrax::CollectionTypeParticipant::GROUP_TYPE, agent_id: ::Ability.admin_group_name, access: Hyrax::CollectionTypeParticipant::CREATE_ACCESS }]
-      }
-
-      Hyrax::CollectionTypes::CreateService.create_collection_type(machine_id: ADMIN_SET_MACHINE_ID, title: ADMIN_SET_DEFAULT_TITLE, options: options)
+      find_by(machine_id: ADMIN_SET_MACHINE_ID) || Hyrax::CollectionTypes::CreateService.create_admin_set_type
     end
 
     private
@@ -152,7 +145,9 @@ module Hyrax
       end
 
       def collection_type_settings_changed?
-        (changes.keys & ['nestable', 'discoverable', 'sharable', 'allow_multiple_membership', 'require_membership', 'assigns_workflow', 'assigns_visibility']).any?
+        (changes.keys & ['nestable', 'discoverable', 'sharable', 'share_applies_to_collection',
+                         'share_applies_to_new_works', 'allow_multiple_membership', 'require_membership',
+                         'assigns_workflow', 'assigns_visibility']).any?
       end
 
       def exists_for_machine_id?(machine_id)

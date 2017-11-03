@@ -1030,6 +1030,9 @@ en:
         nestable: "Allow collections of this type to be nested (a collection can contain other collections)"
         require_membership: "A work must belong to at least one collection of this type"
         sharable: "Allow users to assign collection managers, depositors, and viewers for collections they manage"
+        share_applies_to_collection: "When changes to sharing participants are made, grant those users and groups permissions for the collection."
+        share_applies_to_new_works: "When new works are created directly in the collection, grant sharing participants users and groups permissions for the new work."
+        share_applies_to_collection_and_new_works: ""
       defaults:
         based_near: "A place name related to the work, such as its site of publication, or the city, state, or country the work contents are about. Calls upon the <a href='http://www.geonames.org'>GeoNames web service</a>."
         contributor: "A person or group you want to recognize for playing a role in the creation of the work, but not the primary role."
@@ -1058,6 +1061,9 @@ en:
         nestable: "NESTABLE"
         require_membership: "REQUIRE MEMBERSHIP"
         sharable: "SHARING"
+        share_applies_to_collection: "APPLY TO COLLECTION"
+        share_applies_to_new_works: "APPLY TO NEW WORKS"
+        share_applies_to_collection_and_new_works: "BOTH"
         title: "Type name"
       defaults:
         admin_set_id:              "Add as member of administrative set"

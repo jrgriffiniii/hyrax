@@ -102,6 +102,23 @@ RSpec.describe Hyrax::Admin::CollectionTypesController, type: :controller, clean
         nestable: true,
         discoverable: true,
         sharable: true,
+        share_applies_to: :collection_and_new_works,
+        allow_multiple_membership: true,
+        require_membership: true,
+        assigns_workflow: true,
+        assigns_visibility: true
+      }
+    end
+
+    let(:ctrl_params) do
+      {
+        title: 'Collection type title',
+        description: 'Description of collection type',
+        nestable: true,
+        discoverable: true,
+        sharable: true,
+        share_applies_to_collection: true,
+        share_applies_to_new_works: true,
         allow_multiple_membership: true,
         require_membership: true,
         assigns_workflow: true,
@@ -150,7 +167,7 @@ RSpec.describe Hyrax::Admin::CollectionTypesController, type: :controller, clean
 
         it "assigns all attributes" do
           post :create, params: { collection_type: valid_attributes }, session: valid_session
-          expect(assigns[:collection_type].attributes.symbolize_keys).to include(valid_attributes)
+          expect(assigns[:collection_type].attributes.symbolize_keys).to include(ctrl_params)
         end
 
         it "assigns default participants" do
@@ -240,6 +257,8 @@ RSpec.describe Hyrax::Admin::CollectionTypesController, type: :controller, clean
           nestable: false,
           discoverable: false,
           sharable: false,
+          share_applies_to_collection: false,
+          share_applies_to_new_works: false,
           allow_multiple_membership: false,
           require_membership: true,
           assigns_workflow: true,

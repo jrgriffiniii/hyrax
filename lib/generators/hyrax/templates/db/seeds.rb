@@ -21,7 +21,8 @@ user = User.create(email: 'foo@example.com', password: 'foobarbaz')
 puts "Creating 'Nestable Collection' type"
 options = {
   description: 'Sample collection type that allows nesting of collections.',
-  nestable: true, discoverable: true, sharable: true, allow_multiple_membership: true,
+  nestable: true, discoverable: true, sharable: true, share_applies_to_collection: true,
+  share_applies_to_new_works: true, allow_multiple_membership: true,
   require_membership: false, assigns_workflow: false, assigns_visibility: false,
   participants: [{ agent_type: Hyrax::CollectionTypeParticipant::GROUP_TYPE, agent_id: ::Ability.admin_group_name, access: Hyrax::CollectionTypeParticipant::MANAGE_ACCESS },
                  { agent_type: Hyrax::CollectionTypeParticipant::GROUP_TYPE, agent_id: ::Ability.registered_group_name, access: Hyrax::CollectionTypeParticipant::CREATE_ACCESS }]
@@ -37,7 +38,8 @@ nestable_gid = coltype.gid
 puts "Creating 'Non-Nestable Collection' type"
 options = {
   description: 'Sample collection type that DOES NOT allow nesting of collections.',
-  nestable: false, discoverable: true, sharable: true, allow_multiple_membership: true,
+  nestable: false, discoverable: true, sharable: true, share_applies_to_collection: true,
+  share_applies_to_new_works: true, allow_multiple_membership: true,
   require_membership: false, assigns_workflow: false, assigns_visibility: false,
   participants: [{ agent_type: Hyrax::CollectionTypeParticipant::GROUP_TYPE, agent_id: ::Ability.admin_group_name, access: Hyrax::CollectionTypeParticipant::MANAGE_ACCESS },
                  { agent_type: Hyrax::CollectionTypeParticipant::GROUP_TYPE, agent_id: ::Ability.registered_group_name, access: Hyrax::CollectionTypeParticipant::CREATE_ACCESS }]

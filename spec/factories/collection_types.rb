@@ -1,11 +1,14 @@
 FactoryBot.define do
   factory :collection_type, class: Hyrax::CollectionType do
     sequence(:title) { |n| "Title #{n}" }
+    sequence(:machine_id) { |n| "title_#{n}" }
 
     description 'Collection type with all options'
     nestable true
     discoverable true
     sharable true
+    share_applies_to_collection true
+    share_applies_to_new_works true
     allow_multiple_membership true
     require_membership false
     assigns_workflow false
@@ -70,10 +73,14 @@ FactoryBot.define do
 
     trait :sharable do
       sharable true
+      share_applies_to_collection true
+      share_applies_to_new_works true
     end
 
     trait :not_sharable do
       sharable false
+      share_applies_to_collection false
+      share_applies_to_new_works false
     end
 
     trait :allow_multiple_membership do
@@ -92,6 +99,8 @@ FactoryBot.define do
     nestable true
     discoverable true
     sharable true
+    share_applies_to_collection true
+    share_applies_to_new_works false
     allow_multiple_membership true
     require_membership false
     assigns_workflow false
@@ -117,6 +126,8 @@ FactoryBot.define do
     nestable false
     discoverable false
     sharable true
+    share_applies_to_collection false
+    share_applies_to_new_works true
     allow_multiple_membership false
     require_membership true
     assigns_workflow true

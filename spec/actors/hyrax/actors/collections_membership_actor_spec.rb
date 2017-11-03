@@ -16,12 +16,16 @@ RSpec.describe Hyrax::Actors::CollectionsMembershipActor do
   end
 
   describe 'the next actor' do
+    let(:collection_type) { create(:collection_type) }
+    let(:collection) { create(:collection, collection_type_gid: collection_type.gid) }
     let(:attributes) do
       { member_of_collection_ids: ['123'], title: ['test'] }
     end
 
     before do
-      allow(Collection).to receive(:find).with(['123'])
+      allow(Collection).to receive(:find).with(['123']).and_return(collection)
+      allow(Collection).to receive(:find).with('123').and_return(collection)
+      allow(collection.collection_type).to receive(:share_applies_to_collection?).and_return(true)
       allow(curation_concern).to receive(:member_of_collections=)
     end
 
@@ -34,9 +38,14 @@ RSpec.describe Hyrax::Actors::CollectionsMembershipActor do
   end
 
   describe 'create' do
-    let(:collection) { create(:collection) }
+    let(:collection_type) { create(:collection_type) }
+    let(:collection) { create(:collection, collection_type_gid: collection_type.gid) }
     let(:attributes) do
       { member_of_collection_ids: [collection.id], title: ['test'] }
+    end
+
+    before do
+      allow(collection.collection_type).to receive(:share_applies_to_collection?).and_return(true)
     end
 
     it 'adds it to the collection' do
@@ -87,7 +96,8 @@ RSpec.describe Hyrax::Actors::CollectionsMembershipActor do
     end
 
     context "updates env" do
-      let(:collection) { create(:collection) }
+      let!(:collection_type) { create(:collection_type) }
+      let!(:collection) { create(:collection, collection_type_gid: collection_type.gid) }
 
       subject(:middleware) do
         stack = ActionDispatch::MiddlewareStack.new.tap do |middleware|
@@ -96,33 +106,65 @@ RSpec.describe Hyrax::Actors::CollectionsMembershipActor do
         stack.build(terminator)
       end
 
-      context "when only one collection" do
-        let(:attributes) do
-          { member_of_collection_ids: [collection.id], title: ['test'] }
+      context "when share applies to works" do
+        before do
+          allow(collection.collection_type).to receive(:share_applies_to_works).and_return(true)
         end
 
-        it "removes member_of_collection_ids and adds collection_id to env" do
-          expect(env.attributes).to have_key(:member_of_collection_ids)
-          expect(env.attributes[:member_of_collection_ids].size).to eq 1
-          expect(subject.create(env)).to be true
-          expect(env.attributes).not_to have_key(:member_of_collection_ids)
-          expect(env.attributes).to have_key(:collection_id)
-          expect(env.attributes[:collection_id]).to eq collection.id
+        context "and only one collection" do
+          let(:attributes) do
+            { member_of_collection_ids: [collection.id], title: ['test'] }
+          end
+
+          it "removes member_of_collection_ids and adds collection_id to env" do
+            expect(env.attributes).to have_key(:member_of_collection_ids)
+            expect(env.attributes[:member_of_collection_ids].size).to eq 1
+            expect(subject.create(env)).to be true
+            expect(env.attributes).not_to have_key(:member_of_collection_ids)
+            expect(env.attributes).to have_key(:collection_id)
+            expect(env.attributes[:collection_id]).to eq collection.id
+          end
+        end
+
+        context "when more than one collection" do
+          let(:collection2) { create(:collection) }
+          let(:attributes) do
+            { member_of_collection_ids: [collection.id, collection2.id], title: ['test'] }
+          end
+
+          before do
+            allow(collection.collection_type).to receive(:share_applies_to_works?).and_return(true)
+          end
+
+          it "removes member_of_collection_ids and does NOT add collection_id" do
+            expect(env.attributes).to have_key(:member_of_collection_ids)
+            expect(env.attributes[:member_of_collection_ids].size).to eq 2
+            expect(subject.create(env)).to be true
+            expect(env.attributes).not_to have_key(:member_of_collection_ids)
+            expect(env.attributes).not_to have_key(:collection_id)
+          end
         end
       end
 
-      context "when more than one collection" do
-        let(:collection2) { create(:collection) }
-        let(:attributes) do
-          { member_of_collection_ids: [collection.id, collection2.id], title: ['test'] }
+      context "when share does NOT apply to works" do
+        before do
+          allow(collection.collection_type).to receive(:share_applies_to_new_works?).and_return(false)
+          allow(Collection).to receive(:find).with(collection.id).and_return(collection)
+          allow(Collection).to receive(:find).with([collection.id]).and_return([collection])
         end
 
-        it "removes member_of_collection_ids and does NOT add collection_id" do
-          expect(env.attributes).to have_key(:member_of_collection_ids)
-          expect(env.attributes[:member_of_collection_ids].size).to eq 2
-          expect(subject.create(env)).to be true
-          expect(env.attributes).not_to have_key(:member_of_collection_ids)
-          expect(env.attributes).not_to have_key(:collection_id)
+        context "and only one collection" do
+          let(:attributes) do
+            { member_of_collection_ids: [collection.id], title: ['test'] }
+          end
+
+          it "removes member_of_collection_ids and does NOT add collection_id" do
+            expect(env.attributes).to have_key(:member_of_collection_ids)
+            expect(env.attributes[:member_of_collection_ids].size).to eq 1
+            expect(subject.create(env)).to be true
+            expect(env.attributes).not_to have_key(:member_of_collection_ids)
+            expect(env.attributes).not_to have_key(:collection_id)
+          end
         end
       end
     end

@@ -192,6 +192,8 @@ RSpec.describe Collection, type: :model do
     it { is_expected.to delegate_method(:nestable?).to(:collection_type) }
     it { is_expected.to delegate_method(:discoverable?).to(:collection_type) }
     it { is_expected.to delegate_method(:sharable?).to(:collection_type) }
+    it { is_expected.to delegate_method(:share_applies_to_collection?).to(:collection_type) }
+    it { is_expected.to delegate_method(:share_applies_to_new_works?).to(:collection_type) }
     it { is_expected.to delegate_method(:allow_multiple_membership?).to(:collection_type) }
     it { is_expected.to delegate_method(:require_membership?).to(:collection_type) }
     it { is_expected.to delegate_method(:assigns_workflow?).to(:collection_type) }
@@ -207,7 +209,8 @@ RSpec.describe Collection, type: :model do
 
   describe '#update_access_controls!' do
     let!(:user) { build(:user) }
-    let!(:collection) { create(:collection, user: user) }
+    let(:collection_type) { create(:collection_type) }
+    let!(:collection) { create(:collection, user: user, collection_type_gid: collection_type.gid) }
     let!(:permission_template) { build(:permission_template) }
 
     before do
@@ -218,28 +221,64 @@ RSpec.describe Collection, type: :model do
       allow(permission_template).to receive(:agent_ids_for).with(access: 'view', agent_type: 'group').and_return(['viewers', ::Ability.admin_group_name])
     end
 
-    it 'updates user edit access' do
-      expect(collection.edit_users).to match_array([user.user_key])
-      collection.update_access_controls!
-      expect(collection.edit_users).to match_array([user.user_key, 'mgr1.ex.com', 'mgr2.ex.com'])
+    context 'when share applies to collection' do
+      before do
+        allow(collection.collection_type).to receive(:share_applies_to_collection?).and_return(true)
+      end
+
+      it 'updates user edit access' do
+        expect(collection.edit_users).to match_array([user.user_key])
+        collection.update_access_controls!
+        expect(collection.edit_users).to match_array([user.user_key, 'mgr1.ex.com', 'mgr2.ex.com'])
+      end
+
+      it 'updates group edit access' do
+        expect(collection.edit_groups).to match_array([])
+        collection.update_access_controls!
+        expect(collection.edit_groups).to match_array(['managers', ::Ability.admin_group_name])
+      end
+
+      it 'updates user read access' do
+        expect(collection.read_users).to match_array([])
+        collection.update_access_controls!
+        expect(collection.read_users).to match_array(['vw1.ex.com', 'vw2.ex.com'])
+      end
+
+      it 'updates group read access' do
+        expect(collection.read_groups).to match_array([])
+        collection.update_access_controls!
+        expect(collection.read_groups).to match_array(['viewers', ::Ability.admin_group_name])
+      end
     end
 
-    it 'updates group edit access' do
-      expect(collection.edit_groups).to match_array([])
-      collection.update_access_controls!
-      expect(collection.edit_groups).to match_array(['managers', ::Ability.admin_group_name])
-    end
+    context 'when share does NOT apply to collection' do
+      before do
+        allow(collection.collection_type).to receive(:share_applies_to_collection?).and_return(false)
+      end
 
-    it 'updates user read access' do
-      expect(collection.read_users).to match_array([])
-      collection.update_access_controls!
-      expect(collection.read_users).to match_array(['vw1.ex.com', 'vw2.ex.com'])
-    end
+      it 'does NOT update user edit access' do
+        expect(collection.edit_users).to match_array([user.user_key])
+        collection.update_access_controls!
+        expect(collection.edit_users).to match_array([user.user_key])
+      end
 
-    it 'updates group read access' do
-      expect(collection.read_groups).to match_array([])
-      collection.update_access_controls!
-      expect(collection.read_groups).to match_array(['viewers', ::Ability.admin_group_name])
+      it 'does NOT update group edit access' do
+        expect(collection.edit_groups).to match_array([])
+        collection.update_access_controls!
+        expect(collection.edit_groups).to match_array([])
+      end
+
+      it 'does NOT update user read access' do
+        expect(collection.read_users).to match_array([])
+        collection.update_access_controls!
+        expect(collection.read_users).to match_array([])
+      end
+
+      it 'does NOT update group read access' do
+        expect(collection.read_groups).to match_array([])
+        collection.update_access_controls!
+        expect(collection.read_groups).to match_array([])
+      end
     end
   end
 

@@ -3,11 +3,43 @@
 <p><strong><%= t('.warning') %></strong></p>
 
 <% disabled = (f.object.collections? || f.object.admin_set? || f.object.user_collection?) %>
+<% radio_disabled = (disabled || !f.object.sharable) %>
 <div class="collection-types-settings">
   <div class="form-inline">
     <p><%= f.input :nestable, as: :boolean, disabled: disabled %></p>
     <p><%= f.input :discoverable, as: :boolean, disabled: disabled %></p>
     <p><%= f.input :sharable, as: :boolean, disabled: disabled %></p>
+    <p></p>
+    <div class="form-group collection_type_share_applies_to">
+      <div class="radio">
+        <label>
+          <%= f.radio_button :share_applies_to, :collection, checked: (f.object.share_applies_to==:share_applies_to_collection), disabled: radio_disabled %>
+          <%= t('simple_form.labels.collection_type.share_applies_to_collection') %>
+        </label>
+      </div>
+      <p class="help-block"><%= t('simple_form.hints.collection_type.share_applies_to_collection') %></p>
+    </div>
+    <p></p>
+    <div class="form-group collection_type_share_applies_to">
+      <div class="radio">
+        <label>
+          <%= f.radio_button :share_applies_to, :new_works, checked: (f.object.share_applies_to==:share_applies_to_new_work), disabled: radio_disabled %>
+          <%= t('simple_form.labels.collection_type.share_applies_to_new_works') %>
+        </label>
+      </div>
+      <p class="help-block collection_type_share_applies_to"><%= t('simple_form.hints.collection_type.share_applies_to_new_works') %></p>
+    </div>
+    <p></p>
+    <div class="form-group collection_type_share_applies_to">
+      <div class="radio">
+        <label>
+          <%= f.radio_button :share_applies_to, :collection_and_new_works, checked: (f.object.share_applies_to==:share_applies_to_collection_and_new_works), disabled: radio_disabled %>
+          <%= t('simple_form.labels.collection_type.share_applies_to_collection_and_new_works') %>
+        </label>
+      </div>
+      <p class="help-block"><%= t('simple_form.hints.collection_type.share_applies_to_collection_and_new_works') %></p>
+    </div>
+
     <p><%= f.input :allow_multiple_membership, as: :boolean, disabled: disabled %></p>
     <p><%= f.input :require_membership, as: :boolean, disabled: true %></p>
     <p><%= f.input :assigns_workflow, as: :boolean, disabled: true %></p>

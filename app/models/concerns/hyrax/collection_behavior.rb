@@ -126,6 +126,7 @@ module Hyrax
     # Calculate and update who should have edit access based on who
     # has "manage" access in the PermissionTemplateAccess
     def update_access_controls!
+      return unless collection_type.share_applies_to_collection?
       edit_users = permission_template.agent_ids_for(access: 'manage', agent_type: 'user')
       edit_groups = permission_template.agent_ids_for(access: 'manage', agent_type: 'group')
       read_users = permission_template.agent_ids_for(access: 'view', agent_type: 'user')

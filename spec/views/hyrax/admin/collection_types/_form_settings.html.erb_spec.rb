@@ -8,6 +8,8 @@ RSpec.describe 'hyrax/admin/collection_types/_form_settings.html.erb', type: :vi
     collection_type_nestable
     collection_type_discoverable
     collection_type_sharable
+    collection_type_share_applies_to_collection
+    collection_type_share_applies_to_new_works
     collection_type_allow_multiple_membership
   ].freeze
 
@@ -19,6 +21,11 @@ RSpec.describe 'hyrax/admin/collection_types/_form_settings.html.erb', type: :vi
     end
   end
 
+  before do
+    allow(view).to receive(:f).and_return(form)
+    allow(form).to receive(:object).and_return(collection_type_form)
+  end
+
   context 'for non-special collection types' do
     let(:collection_type) { create(:collection_type) }
 
@@ -26,8 +33,6 @@ RSpec.describe 'hyrax/admin/collection_types/_form_settings.html.erb', type: :vi
       before do
         collection_type_form.collection_type = collection_type
         allow(collection_type).to receive(:collections?).and_return(false)
-        assign(:form, collection_type_form)
-        allow(view).to receive(:f).and_return(form)
         render
       end
 
@@ -70,8 +75,6 @@ RSpec.describe 'hyrax/admin/collection_types/_form_settings.html.erb', type: :vi
     before do
       collection_type_form.collection_type = collection_type
       allow(collection_type).to receive(:collections?).and_return(false)
-      assign(:form, collection_type_form)
-      allow(view).to receive(:f).and_return(form)
       render
     end
 
@@ -90,8 +93,6 @@ RSpec.describe 'hyrax/admin/collection_types/_form_settings.html.erb', type: :vi
     before do
       collection_type_form.collection_type = collection_type
       allow(collection_type).to receive(:collections?).and_return(false)
-      assign(:form, collection_type_form)
-      allow(view).to receive(:f).and_return(form)
       render
     end
 
