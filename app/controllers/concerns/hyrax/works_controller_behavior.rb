@@ -7,7 +7,6 @@ module Hyrax
 
     included do
       layout :decide_layout
-
       copy_blacklight_config_from(::CatalogController)
       class_attribute :show_presenter, :search_builder_class
       self.show_presenter = Hyrax::WorkShowPresenter
@@ -16,6 +15,7 @@ module Hyrax
         metadata_adapter: Valkyrie::MetadataAdapter.find(:indexing_persister),
         storage_adapter: Valkyrie.config.storage_adapter
       )
+      self.theme = 'hyrax/1_column'
 
       attr_accessor :curation_concern
       helper_method :curation_concern, :contextual_path
