@@ -46,6 +46,7 @@ else
   end
 end
 # END ENGINE_CART BLOCK
+gem 'browse-everything', github: 'jrgriffiniii/browse-everything', branch: 'fix-driver-api-connect'
 # rubocop:enable Bundler/DuplicatedGem
 
 eval_gemfile File.expand_path('spec/test_app_templates/Gemfile.extra', File.dirname(__FILE__)) unless File.exist?(file)
