@@ -21,6 +21,7 @@ class ImportUrlJob < Hyrax::ApplicationJob
     operation.performing!
     user = User.find_by_user_key(file_set.depositor)
     uri = URI(file_set.import_url)
+    name = file_set.label
     @file_set = file_set
     @operation = operation
 
@@ -31,7 +32,7 @@ class ImportUrlJob < Hyrax::ApplicationJob
 
     # @todo Use Hydra::Works::AddExternalFileToFileSet instead of manually
     #       copying the file here. This will be gnarly.
-    copy_remote_file(uri, headers) do |f|
+    copy_remote_file(uri, name, headers) do |f|
       # reload the FileSet once the data is copied since this is a long running task
       file_set.reload
 
@@ -54,8 +55,12 @@ class ImportUrlJob < Hyrax::ApplicationJob
     def can_retrieve?(uri, headers = {})
       can_retrieve_headers = { 'Range' => 'bytes=0-0' }
       can_retrieve_headers.merge!(headers)
+      conn = Faraday.new(uri)
 
-      response = Typhoeus.get(uri, headers: can_retrieve_headers)
+      response = conn.get do |req|
+        req.headers = can_retrieve_headers
+      end
+
       response.success?
     end
 
@@ -64,9 +69,11 @@ class ImportUrlJob < Hyrax::ApplicationJob
     # because when the file in added into Fedora the file name will get persisted in the
     # metadata.
     # @param uri [URI] the uri of the file to download
+    # @param name [String] the human-readable name of the file
+    # @param headers [Hash] the HTTP headers for the GET request (these may contain an authentication token)
     # @yield [IO] the stream to write to
-    def copy_remote_file(uri, headers = {})
-      filename = File.basename(uri.path)
+    def copy_remote_file(uri, name, headers = {})
+      filename = File.basename(name)
       dir = Dir.mktmpdir
       Rails.logger.debug("ImportUrlJob: Copying <#{uri}> to #{dir}")
 
