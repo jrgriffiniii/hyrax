@@ -10,9 +10,8 @@ RSpec.describe 'Batch creation of works', type: :feature do
           with_permission_template: { deposit_groups: [::Ability.registered_group_name] })
   end
 
-  before { sign_in user }
-
   it "renders the batch create form" do
+    sign_in user
     visit hyrax.new_batch_upload_path
     expect(page).to have_content "Add New Works by Batch"
     within("li.active") do
