@@ -65,6 +65,7 @@ WebMock.disable_net_connect!(allow_localhost: true)
 
 require 'i18n/debug' if ENV['I18N_DEBUG']
 require 'byebug' unless ci_build?
+require 'selenium-webdriver'
 
 # @note In January 2018, TravisCI disabled Chrome sandboxing in its Linux
 #       container build environments to mitigate Meltdown/Spectre
@@ -72,11 +73,13 @@ require 'byebug' unless ci_build?
 #       Capybara-provided :selenium_chrome_headless driver (which does not
 #       include the `--no-sandbox` argument).
 Capybara.register_driver :selenium_chrome_headless_sandboxless do |app|
-  browser_options = ::Selenium::WebDriver::Chrome::Options.new
-  browser_options.args << '--headless'
-  browser_options.args << '--disable-gpu'
-  browser_options.args << '--no-sandbox'
-  Capybara::Selenium::Driver.new(app, browser: :chrome, options: browser_options)
+  capabilities = Selenium::WebDriver::Remote::Capabilities.chrome(
+    chromeOptions: { args: %w(headless disable-gpu disable-setuid-sandbox window-size=7680,4320) }
+  )
+
+  http_client = Selenium::WebDriver::Remote::Http::Default.new
+
+  Capybara::Selenium::Driver.new(app, browser: :chrome, desired_capabilities: capabilities, http_client: http_client)
 end
 
 Capybara.default_driver = :rack_test # This is a faster driver
