@@ -22,17 +22,6 @@ RSpec.describe 'collection', type: :feature, clean_repo: true do
     admin_set_a
     admin_set_b
   end
-  context 'when user can not create collections' do
-    before do
-      sign_in user
-      visit '/dashboard/my/collections'
-    end
-
-    it 'does show New Collection button', js: true do
-      expect(page).not_to have_link "New Collection"
-      expect(page).not_to have_button "New Collection"
-    end
-  end
 
   context 'when user can create collections of one type' do
     let(:title) { "Test Collection" }
