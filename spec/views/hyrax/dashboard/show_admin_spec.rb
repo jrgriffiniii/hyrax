@@ -68,5 +68,4 @@ RSpec.describe "hyrax/dashboard/show_admin.html.erb", type: :view do
       end
     end
   end
-
 end
