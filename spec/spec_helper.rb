@@ -74,7 +74,7 @@ require 'selenium-webdriver'
 #       include the `--no-sandbox` argument).
 Capybara.register_driver :selenium_chrome_headless_sandboxless do |app|
   capabilities = Selenium::WebDriver::Remote::Capabilities.chrome(
-    chromeOptions: { args: %w(headless disable-gpu disable-setuid-sandbox window-size=7680,4320) }
+    chromeOptions: { args: %w[headless disable-gpu disable-setuid-sandbox] }
   )
 
   http_client = Selenium::WebDriver::Remote::Http::Default.new
