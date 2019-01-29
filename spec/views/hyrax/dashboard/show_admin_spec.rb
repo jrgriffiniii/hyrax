@@ -22,7 +22,7 @@ RSpec.describe "hyrax/dashboard/show_admin.html.erb", type: :view do
       "has_model_ssim" => ["AdminSet"],
       "id" => "admin_set/default",
       "accessControl_ssim" => ["144a2b72-9c59-4cfc-b0fb-bd599318a893"],
-      "title_tesim" => ["Default Admin Set"],
+      "title_tesim" => ["First Admin Set"],
       "thumbnail_path_ss" => "/assets/collection-a38b932554788aa578debf2319e8c4ba8a7db06b3ba57ecda1391a548a4b6e0a.png",
       "edit_access_group_ssim" => ["admin"],
       "human_readable_type_tesim" => ["Admin Set"],
@@ -31,12 +31,31 @@ RSpec.describe "hyrax/dashboard/show_admin.html.erb", type: :view do
       "score" => 1.0
     )
   end
+  let(:admin_set_document2) do
+    ::SolrDocument.new(
+      "system_create_dtsi" => "2019-01-28T21:43:56Z",
+      "system_modified_dtsi" => "2019-01-28T21:43:56Z",
+      "has_model_ssim" => ["AdminSet"],
+      "id" => "admin_set/default",
+      "accessControl_ssim" => ["144a2b72-9c59-4cfc-b0fb-bd599318a893"],
+      "title_tesim" => ["Second Admin Set"],
+      "thumbnail_path_ss" => "/assets/collection-a38b932554788aa578debf2319e8c4ba8a7db06b3ba57ecda1391a548a4b6e0a.png",
+      "edit_access_group_ssim" => ["admin"],
+      "human_readable_type_tesim" => ["Admin Set"],
+      "_version_" => 1_623_942_062_370_979_840,
+      "timestamp" => "2019-01-28T21:43:56.215Z",
+      "score" => 1.0
+    )
+  end
+
   let(:search_result_for_work_count) do
     SearchResultForWorkCount = Struct.new(:admin_set, :work_count, :file_count)
     [
-      SearchResultForWorkCount.new(admin_set_document, 1, 0)
+      SearchResultForWorkCount.new(admin_set_document, 1, 0),
+      SearchResultForWorkCount.new(admin_set_document2, 1, 0)
     ]
   end
+
   before do
     allow(controller).to receive(:current_user).and_return(user)
     allow(presenter).to receive(:user_count).and_return(1)
@@ -66,6 +85,8 @@ RSpec.describe "hyrax/dashboard/show_admin.html.erb", type: :view do
         expect(rendered).to have_content "Manage Embargoes"
         expect(rendered).to have_content "Manage Leases"
       end
+      expect(rendered).to have_css('tr', text: 'First Admin Set')
+      expect(rendered).to have_css('tr', text: 'Second Admin Set')
     end
   end
 end
