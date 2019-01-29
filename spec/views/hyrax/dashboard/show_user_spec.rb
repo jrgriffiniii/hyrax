@@ -31,6 +31,11 @@ RSpec.describe "hyrax/dashboard/show_user.html.erb", type: :view do
     expect(rendered).to have_content "Select works to transfer"
     expect(rendered).to have_content "sent transfers"
     expect(rendered).to have_content "received transfers"
+
+    within '.sidebar' do
+      expect(rendered).to have_link "Works"
+      expect(rendered).to have_link "Collections"
+    end
   end
 
   describe 'proxy deposit' do
