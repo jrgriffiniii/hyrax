@@ -128,6 +128,7 @@ RSpec.describe 'collection', type: :feature, clean_repo: true do
           visit '/dashboard/my/collections'
         end
 
+        # This should be a View spec
         it "has page title, has tabs for All Collections and Your Collections, and lists collections with edit access" do
           expect(page).to have_content 'Collections'
           expect(page).to have_link 'All Collections'
@@ -140,6 +141,7 @@ RSpec.describe 'collection', type: :feature, clean_repo: true do
           expect(page).not_to have_link(admin_set_b.title.first)
         end
 
+        # This should be a View spec
         it "has collection type and visibility filters" do
           expect(page).to have_button 'Visibility'
           expect(page).to have_link 'Public',
@@ -163,6 +165,7 @@ RSpec.describe 'collection', type: :feature, clean_repo: true do
         visit '/dashboard/my/collections'
       end
 
+      # This should be a View spec
       it 'lists all collections for all users' do
         expect(page).to have_link 'All Collection'
         click_link 'All Collections'
@@ -691,6 +694,7 @@ RSpec.describe 'collection', type: :feature, clean_repo: true do
       end
       let(:collection) { create(:named_collection, user: user, create_access: true) }
 
+      # This should be a View spec
       it "shows a collection with a listing of Descriptive Metadata and catalog-style search results" do
         visit '/dashboard/my/collections'
         expect(page).to have_content(collection.title.first)

@@ -1,9 +1,4 @@
 RSpec.describe "hyrax/dashboard/show_admin.html.erb", type: :view do
-  let(:transfer_presenter) do
-    instance_double(Hyrax::TransfersPresenter,
-                    render_sent_transfers: 'sent transfers',
-                    render_received_transfers: 'received transfers')
-  end
   let(:activity) { [] }
   let(:repository_growth) do
     instance_double(Hyrax::Admin::RepositoryGrowthPresenter, to_json: "[]")
@@ -73,4 +68,5 @@ RSpec.describe "hyrax/dashboard/show_admin.html.erb", type: :view do
       end
     end
   end
+
 end

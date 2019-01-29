@@ -32,6 +32,11 @@ Metrics/BlockLength:
     - 'lib/tasks/*.rake'
     - 'spec/**/*.rb'
 
+Metrics/LineLength:
+  Exclude:
+    - 'spec/views/hyrax/dashboard/works/_default_group.html.erb_spec.rb'
+    - 'spec/views/hyrax/dashboard/works/_list_works.html.erb_spec.rb'
+
 # Naming/FileName: # https://github.com/bbatsov/rubocop/issues/2973
 #   Exclude:
 #     - 'Gemfile'
