@@ -3,10 +3,13 @@ RSpec.describe Hyrax::Statistics::Works::ByResourceType do
 
   describe "#query", :clean_repo do
     before do
-      create(:generic_work, resource_type: ['Conference Proceeding'])
-      create(:generic_work, resource_type: ['Conference Proceeding'])
-      create(:generic_work, resource_type: ['Image'])
-      create(:generic_work, resource_type: ['Journal'])
+      # Creating factories here led to failures found within
+      # https://travis-ci.org/samvera/hyrax/jobs/454752377
+      # One should be able to invoke create(:generic_work) ¯\_(ツ)_/¯
+      GenericWork.create(title: ['test'], resource_type: ['Conference Proceeding']).save!
+      GenericWork.create(title: ['test'], resource_type: ['Conference Proceeding']).save!
+      GenericWork.create(title: ['test'], resource_type: ['Image']).save!
+      GenericWork.create(title: ['test'], resource_type: ['Journal']).save!
     end
 
     subject { service.query }
