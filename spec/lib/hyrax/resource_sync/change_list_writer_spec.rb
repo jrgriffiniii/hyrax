@@ -18,6 +18,7 @@ RSpec.describe Hyrax::ResourceSync::ChangeListWriter, :clean_repo do
       'x' => sitemap
     }
   end
+  let(:capability_element) { xml.xpath('//rs:ln/@href', 'rs' => "http://www.openarchives.org/rs/terms/") }
 
   subject { instance.write }
 
@@ -42,23 +43,21 @@ RSpec.describe Hyrax::ResourceSync::ChangeListWriter, :clean_repo do
     end
 
     it "has a list of resources" do
-      capability = xml.xpath('//rs:ln/@href', 'rs' => "http://www.openarchives.org/rs/terms/").text
-      expect(capability).to eq capability_list
-
+      expect(capability_element.text).to eq capability_list
       expect(location(1)).to eq "http://example.com/concern/file_sets/#{file_set.id}"
-      changed_elements = xml.xpath("//x:url[1]/rs:md/@change", namespaces)
-      expect(changed_elements.map(&:value)).to eq ['created']
-
+      changed_elements = changed(1, namespaces)
       expect(location(2)).to eq "http://example.com/concern/generic_works/#{public_work.id}"
-      changed_elements = xml.xpath("//x:url[2]/rs:md/@change", namespaces)
-      expect(changed_elements.map(&:value)).to eq ['created']
-
+      changed_elements += changed(2, namespaces)
       expect(location(3)).to eq "http://example.com/collections/#{public_collection.id}"
-      changed_elements = xml.xpath("//x:url[3]/rs:md/@change", namespaces)
-      expect(changed_elements.map(&:value)).to eq ['created']
+      changed_elements += changed(3, namespaces)
+      expect(changed_elements.map(&:value)).to eq ['created', 'created', 'created']
 
       expect(url_list.count).to eq 3
     end
+  end
+
+  def changed(n, namespaces = {})
+    xml.xpath("//x:url[#{n}]/rs:md/@change", namespaces)
   end
 
   def location(n)
