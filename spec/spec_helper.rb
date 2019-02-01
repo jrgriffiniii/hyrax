@@ -278,6 +278,8 @@ RSpec.configure do |config|
   config.before(:example, :perform_enqueued) do |example|
     ActiveJob::Base.queue_adapter.filter =
       example.metadata[:perform_enqueued].try(:to_a)
+    ActiveJob::Base.queue_adapter.enqueued_jobs  = []
+    ActiveJob::Base.queue_adapter.performed_jobs = []
 
     ActiveJob::Base.queue_adapter.perform_enqueued_jobs    = true
     ActiveJob::Base.queue_adapter.perform_enqueued_at_jobs = true
