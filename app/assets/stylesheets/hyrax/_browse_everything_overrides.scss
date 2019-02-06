@@ -1,5 +1,9 @@
-@import "browse_everything/browse_everything";
+@import "browse_everything/browse_everything_bootstrap3";
 
+/**
+ * Overrides for the styles in the browse-everything Gem
+ * See https://github.com/samvera/browse-everything
+ */
 #browse-everything {
   top: 10%;
   background-color: initial;

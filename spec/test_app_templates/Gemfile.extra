@@ -6,3 +6,5 @@ group :development do
 end
 
 gem 'bootsnap', require: false
+
+gem 'browse-everything', git: 'https://github.com/jrgriffiniii/browse-everything.git', branch: 'issues-hyrax-3.0.0.pre.beta1'

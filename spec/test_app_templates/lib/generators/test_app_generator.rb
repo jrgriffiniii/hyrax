@@ -11,12 +11,12 @@ class TestAppGenerator < Rails::Generators::Base
     end
   end
 
-  def install_engine
-    generate 'hyrax:install', '-f'
-  end
-
   def browse_everything_install
     generate "browse_everything:install --skip-assets"
+  end
+
+  def install_engine
+    generate 'hyrax:install', '-f'
   end
 
   def create_generic_work

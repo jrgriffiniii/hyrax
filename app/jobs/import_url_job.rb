@@ -24,7 +24,7 @@ class ImportUrlJob < Hyrax::ApplicationJob
     @file_set = file_set
     @operation = operation
 
-    unless can_retrieve?(uri)
+    unless BrowseEverything::Retriever.can_retrieve?(uri, headers)
       send_error('Expired URL')
       return false
     end

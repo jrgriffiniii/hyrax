@@ -3,6 +3,8 @@ source 'https://rubygems.org'
 # Please see hyrax.gemspec for dependency information.
 gemspec
 
+gem 'browse-everything', git: 'https://github.com/jrgriffiniii/browse-everything.git', branch: 'issues-hyrax-3.0.0.pre.beta1'
+
 group :development, :test do
   gem 'coveralls', require: false
   gem 'i18n-tasks'
