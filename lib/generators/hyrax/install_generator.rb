@@ -32,6 +32,11 @@ module Hyrax
   18. Generates RIIIF image server implementation
          """
 
+    def fix_sqlite3_version_requirement
+      # @see https://github.com/projectblacklight/blacklight/pull/2065
+      gsub_file('Gemfile', /^gem 'sqlite3'$/, 'gem "sqlite3", "~> 1.3.13"')
+    end
+
     def run_required_generators
       say_status('info', '[Hyrax] GENERATING BLACKLIGHT', :blue)
       generate 'blacklight:install --devise'

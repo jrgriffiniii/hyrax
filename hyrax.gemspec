@@ -78,6 +78,7 @@ SUMMARY
   spec.add_dependency 'samvera-nesting_indexer', '~> 2.0'
   spec.add_dependency 'select2-rails', '~> 3.5'
   spec.add_dependency 'signet'
+  spec.add_dependency 'sqlite3', '~> 1.3.6'
   spec.add_dependency 'tinymce-rails', '~> 4.1'
 
   # temporary pin to 2.17 due to failures caused in 2.18.0
