@@ -101,7 +101,7 @@ jobs:
           bundle check || bundle install
 
     - save_cache:
-        key: v1-test-app-{{ .Branch }}-{{ .Revision }}
+        key: v1-test-app-{{ checksum "template.rb" }}
         paths:
         - ".internal_test_app"
 
