@@ -124,8 +124,6 @@ jobs:
         CATALINA_OPTS: "-Djava.awt.headless=true -Dfile.encoding=UTF-8 -server -Xms512m -Xmx1024m -XX:NewSize=256m -XX:MaxNewSize=256m -XX:PermSize=256m -XX:MaxPermSize=256m -XX:+DisableExplicitGC"
     - image: solr:7-alpine
       command: bin/solr -cloud -noprompt -f -p 8985
-    - image: selenium/standalone-chrome:latest
-      name: selenium
 
     working_directory: ~/hyrax
     parallelism: 4
@@ -143,8 +141,20 @@ jobs:
       COVERALLS_PARALLEL: true
 
     steps:
+    - setup_remote_docker
+
     - attach_workspace:
         at: ~/
+
+    - run:
+        name: "Start the selenium service"
+        command: |
+          docker run -d --name selenium -p 4444:4444 selenium/standalone-chrome:latest
+          docker cp ~/hyrax/spec/fixtures selenium:fixtures
+
+    - run:
+        name: "Retrieve the IP address for the container"
+        command: export SELENIUM_HOST=$(docker inspect --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' selenium)
 
     - run:
         name: Ensure top-level Gemfile.lock is valid
