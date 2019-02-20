@@ -125,6 +125,7 @@ jobs:
     - image: solr:7-alpine
       command: bin/solr -cloud -noprompt -f -p 8985
     - image: selenium/standalone-chrome:latest
+      name: selenium
 
     working_directory: ~/hyrax
     parallelism: 4

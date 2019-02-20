@@ -69,7 +69,7 @@ require 'byebug' unless ci_build?
 Capybara.register_driver :selenium_chrome_headless_sandboxless do |app|
   args = ['--disable-gpu', '--nosandbox', '--headless']
   caps = Selenium::WebDriver::Remote::Capabilities.chrome("chromeOptions" => { "args" => args })
-  Capybara::Selenium::Driver.new(app, browser: :remote, url: "http://localhost:4444/wd/hub", desired_capabilities: caps)
+  Capybara::Selenium::Driver.new(app, browser: :remote, url: "http://selenium:4444/wd/hub", desired_capabilities: caps)
 end
 
 Capybara.default_driver = :rack_test # This is a faster driver
