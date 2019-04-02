@@ -163,11 +163,9 @@ module Wings
         klass.properties.each_key do |property_name|
           attribute property_name.to_sym, ::Valkyrie::Types::String
         end
-
         relationship_keys.each do |linked_property_name|
           attribute linked_property_name.to_sym, ::Valkyrie::Types::Set.of(::Valkyrie::Types::ID)
         end
-
         reflection_id_keys.each do |property_name|
           attribute property_name, ::Valkyrie::Types::ID
         end
