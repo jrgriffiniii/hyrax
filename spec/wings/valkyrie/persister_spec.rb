@@ -105,6 +105,7 @@ RSpec.describe Wings::Valkyrie::Persister do
         attribute :title
         attribute :author
         attribute :member_ids
+        attribute :ordered_member_ids, Valkyrie::Types::Array.of(Valkyrie::Types::ID).meta(ordered: true)
         attribute :nested_resource
         attribute :single_value, Valkyrie::Types::String.optional
         attribute :ordered_authors, Valkyrie::Types::Array.of(Valkyrie::Types::Anything).meta(ordered: true)
@@ -299,16 +300,16 @@ RSpec.describe Wings::Valkyrie::Persister do
       let(:book) { persister.save(resource: resource_class.new) }
       let(:book2) { persister.save(resource: resource_class.new) }
 
-      xit "can order members" do
+      it "can order members" do
         book3 = persister.save(resource: resource_class.new)
-        parent = persister.save(resource: resource_class.new(member_ids: [book2.id, book.id]))
-        parent.member_ids = parent.member_ids + [book3.id]
+        parent = persister.save(resource: resource_class.new(ordered_member_ids: [book2.id, book.id]))
+        parent.ordered_member_ids = parent.ordered_member_ids + [book3.id]
         parent = persister.save(resource: parent)
         reloaded = query_service.find_by(id: parent.id)
-        expect(reloaded.member_ids).to eq [book2.id, book.id, book3.id]
+        expect(reloaded.ordered_member_ids).to eq [book2.id, book.id, book3.id]
       end
 
-      xit "can remove members" do
+      it "can remove members" do
         parent = persister.save(resource: resource_class.new(member_ids: [book2.id, book.id]))
         parent.member_ids = parent.member_ids - [book2.id]
         parent = persister.save(resource: parent)
@@ -505,7 +506,7 @@ RSpec.describe Wings::Valkyrie::Persister do
         ]
       end
 
-      xit "orders nested objects with strings" do
+      it "orders nested objects with strings" do
         nested1 = resource_class.new(id: Valkyrie::ID.new("resource1"))
 
         resource.ordered_authors = [nested1, "test"]
@@ -515,7 +516,7 @@ RSpec.describe Wings::Valkyrie::Persister do
         expect(output.ordered_authors[1]).to eq "test"
       end
 
-      xit "orders nested objects" do
+      it "orders nested objects" do
         nested1 = resource_class.new(id: Valkyrie::ID.new("resource1"), authors: ["Resource 1"])
         nested2 = resource_class.new(id: Valkyrie::ID.new("resource2"), authors: ["Resource 2"])
         nested3 = resource_class.new(id: Valkyrie::ID.new("resource3"), authors: ["Resource 3"])

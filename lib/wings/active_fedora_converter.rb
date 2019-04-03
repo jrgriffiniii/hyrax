@@ -28,9 +28,11 @@ module Wings
     # @return [ActiveFedora::Base]
     def convert
       attributes = ActiveFedoraAttributes.new(resource.attributes).result
+      attributes.delete(:resource_type)
       active_fedora_class.new(attributes).tap do |af_object|
         af_object.id = id unless id.empty?
         convert_members(af_object)
+        convert_ordered_members(af_object)
         convert_member_of_collections(af_object)
       end
     end
@@ -100,10 +102,10 @@ module Wings
       property :ordered_authors, predicate: ::RDF::Vocab::DC.creator
       property :ordered_nested, predicate: ::RDF::URI("http://example.com/ordered_nested")
       property :nested_resource, predicate: ::RDF::URI("http://example.com/nested_resource"), class_name: "Wings::ActiveFedoraConverter::NestedResource"
-      accepts_nested_attributes_for :nested_resource
 
       # self.indexer = <%= class_name %>Indexer
       include ::Hyrax::BasicMetadata
+      accepts_nested_attributes_for :nested_resource
     end
 
     class NestedResource < ActiveTriples::Resource
@@ -164,6 +166,13 @@ module Wings
         return unless resource.respond_to?(:member_ids) && resource.member_ids
         # TODO: It would be better to find a way to add the members without resuming all the member AF objects
         resource.member_ids.each { |valkyrie_id| af_object.members << ActiveFedora::Base.find(valkyrie_id.id) }
+      end
+
+      def convert_ordered_members(af_object)
+        return unless resource.respond_to?(:ordered_member_ids) && resource.ordered_member_ids
+        resource.ordered_member_ids.each do |valkyrie_id|
+          af_object.ordered_members << ActiveFedora::Base.find(valkyrie_id.id)
+        end
       end
 
       def convert_member_of_collections(af_object)
