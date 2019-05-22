@@ -43,7 +43,6 @@ module Wings
 
   class DefaultWork < ActiveFedora::Base
     include Hyrax::WorkBehavior
-    property :ordered_authors, predicate: ::RDF::Vocab::DC.creator
     property :ordered_nested, predicate: ::RDF::URI("http://example.com/ordered_nested")
     property :nested_resource, predicate: ::RDF::URI("http://example.com/nested_resource"), class_name: "Wings::ActiveFedoraConverter::NestedResource"
     accepts_nested_attributes_for :nested_resource
@@ -130,10 +129,30 @@ module Wings
 
     private
 
+      def type_validator
+        Hydra::PCDM::Validators::PCDMObjectValidator
+      end
+
       def klass
-        @klass ||= PCDMObjectClassCache.instance.fetch(valkyrie_resource) do
+        return @klass unless @klass.nil?
+
+        @klass = PCDMObjectClassCache.instance.fetch(valkyrie_resource) do
           self.class.to_pcdm_object_class(resource: valkyrie_resource)
         end
+
+        valkyrie_resource.class.schema.each do |key, valkyrie_attribute|
+          attribute_meta = valkyrie_attribute.meta
+
+          next unless attribute_meta.fetch(:ordered, false)
+          predicate = RDF::URI("http://foo.bar/valkyrie#{key}")
+          @klass.ordered_aggregation(key,
+                                     has_member_relation: predicate,
+                                     class_name: 'ActiveFedora::Base',
+                                     type_validator: type_validator,
+                                     through: :list_source)
+        end
+
+        @klass
       end
 
       # Transform the attributes from the Valkyrie Resource

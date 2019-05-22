@@ -47,6 +47,7 @@ Metrics/MethodLength:
     - 'app/services/hyrax/workflow/permission_query.rb'
     - 'lib/generators/hyrax/install_generator.rb'
     - 'lib/hyrax/rails/routes.rb'
+    - 'lib/wings/resource_transformer.rb'
     - 'spec/support/**/*'
 
 
