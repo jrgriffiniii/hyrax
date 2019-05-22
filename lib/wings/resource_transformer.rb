@@ -50,6 +50,10 @@ module Wings
     include ::Hyrax::BasicMetadata
   end
 
+  class AggregatedValue < Hydra::PCDM::Object
+    property :value, predicate: ::RDF::URI("http://example.com/value")
+  end
+
   class ResourceTransformer
     # Construct an ActiveFedora Model from a Valkyrie Resource
     # @param valkyrie_resource [Valkyrie::Resource]
@@ -142,12 +146,24 @@ module Wings
 
         valkyrie_resource.class.schema.each do |key, valkyrie_attribute|
           attribute_meta = valkyrie_attribute.meta
-
           next unless attribute_meta.fetch(:ordered, false)
+
+          attribute_value = valkyrie_resource.attributes[key]
+          next if attribute_value.nil?
+
+          converted_attribute_values = attribute_value.map do |val|
+            agg_value = AggregatedValue.new(value: [val])
+            agg_value.save!
+            agg_value
+          end
+
+          valkyrie_resource.send(:"#{key}=", converted_attribute_values)
+          attribute_value_class = 'Wings::AggregatedValue'
           predicate = RDF::URI("http://foo.bar/valkyrie#{key}")
+
           @klass.ordered_aggregation(key,
                                      has_member_relation: predicate,
-                                     class_name: 'ActiveFedora::Base',
+                                     class_name: attribute_value_class,
                                      type_validator: type_validator,
                                      through: :list_source)
         end

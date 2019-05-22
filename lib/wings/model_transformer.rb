@@ -61,7 +61,19 @@ module Wings
     def build
       pcdm_object.id = minted_id if pcdm_object.id.nil?
       attrs = attributes.tap { |hash| hash[:new_record] = pcdm_object.new_record? }
-      klass.new(alternate_ids: [::Valkyrie::ID.new(pcdm_object.id)], **attrs)
+      built = klass.new(alternate_ids: [::Valkyrie::ID.new(pcdm_object.id)], **attrs)
+
+      pcdm_object.reflections.each do |key, reflection|
+        # This needs to be adjusted
+        next unless reflection.klass == Wings::AggregatedValue
+        agg_values = pcdm_object.send(:"#{key}")
+        values = agg_values.map do |agg_val|
+          Array.wrap(agg_val.value.to_a).first
+        end
+        built.send(:"#{key}=", values)
+      end
+
+      built
     end
 
     ##
