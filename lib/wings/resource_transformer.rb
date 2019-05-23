@@ -146,20 +146,32 @@ module Wings
 
         valkyrie_resource.class.schema.each do |key, valkyrie_attribute|
           attribute_meta = valkyrie_attribute.meta
+
+          # Work-around to be removed
+          next if [:member_ids, :ordered_nested].include?(key)
           next unless attribute_meta.fetch(:ordered, false)
 
           attribute_value = valkyrie_resource.attributes[key]
           next if attribute_value.nil?
 
-          converted_attribute_values = attribute_value.map do |val|
+          head = nil
+          attribute_value.each do |val|
             agg_value = AggregatedValue.new(value: [val])
             agg_value.save!
-            agg_value
+            if !head.nil?
+              # Setting the tail here should append the value
+              head.tail = [agg_value]
+              head.save!
+            else
+              head = agg_value
+            end
           end
+
+          converted_attribute_values = [head]
 
           valkyrie_resource.send(:"#{key}=", converted_attribute_values)
           attribute_value_class = 'Wings::AggregatedValue'
-          predicate = RDF::URI("http://foo.bar/valkyrie#{key}")
+          predicate = RDF::URI("http://example.com/wings#{key}")
 
           @klass.ordered_aggregation(key,
                                      has_member_relation: predicate,

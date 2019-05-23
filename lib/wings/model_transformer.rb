@@ -64,12 +64,19 @@ module Wings
       built = klass.new(alternate_ids: [::Valkyrie::ID.new(pcdm_object.id)], **attrs)
 
       pcdm_object.reflections.each do |key, reflection|
-        # This needs to be adjusted
+        # A better way of checking for this condition should be introduced
         next unless reflection.klass == Wings::AggregatedValue
-        agg_values = pcdm_object.send(:"#{key}")
-        values = agg_values.map do |agg_val|
-          Array.wrap(agg_val.value.to_a).first
+
+        # Target values should be retrieved using the
+        #   ActiveFedora::Associations::Association interface
+        #   This is probably the problem here, as OrderedAssocation needs to be
+        #   used
+        #   @see https://github.com/samvera/active_fedora/blob/master/lib/active_fedora/associations/orders_association.rb#L122
+        target_values = pcdm_object.send(:"#{key}")
+        aggregate_values = target_values.map do |agg_val|
+          agg_val.value.to_a
         end
+        values = aggregate_values.flatten
         built.send(:"#{key}=", values)
       end
 
