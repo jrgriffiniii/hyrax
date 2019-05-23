@@ -121,7 +121,37 @@ module Wings
     # class derived from ActiveFedora::Base
     # @return [ActiveFedora::Base]
     def build
-      built = klass.new(**attributes)
+      new_attributes = attributes
+      built = klass.new
+
+      valkyrie_resource.class.schema.each do |key, valkyrie_attribute|
+        attribute_meta = valkyrie_attribute.meta
+
+        # Work-around to be removed
+        next if [:member_ids, :ordered_nested].include?(key)
+        next unless attribute_meta.fetch(:ordered, false)
+
+        attribute_value = valkyrie_resource.attributes[key]
+        next if attribute_value.nil?
+
+        new_attributes.delete(key)
+
+        attribute_value.each do |val|
+          agg_value = AggregatedValue.new(value: [val])
+          # Build a ListNode for the OrderedList
+          list_key = "ordered_#{key.to_s.singularize}_proxies"
+          ordered_list = built.send(list_key)
+
+          ordered_list.reload
+          ordered_list.append_target(agg_value)
+          ordered_list.last.target.save!
+          built.save!
+        end
+      end
+
+      new_attributes.each do |name, values|
+        built.send(:"#{name}=", values)
+      end
 
       # Permissions are handled separately by hydra-access-controls
       built.read_users = valkyrie_resource.attributes.fetch(:read_users, [])
@@ -151,33 +181,20 @@ module Wings
           next if [:member_ids, :ordered_nested].include?(key)
           next unless attribute_meta.fetch(:ordered, false)
 
-          attribute_value = valkyrie_resource.attributes[key]
-          next if attribute_value.nil?
-
-          head = nil
-          attribute_value.each do |val|
-            agg_value = AggregatedValue.new(value: [val])
-            agg_value.save!
-            if !head.nil?
-              # Setting the tail here should append the value
-              head.tail = [agg_value]
-              head.save!
-            else
-              head = agg_value
-            end
-          end
-
-          converted_attribute_values = [head]
-
-          valkyrie_resource.send(:"#{key}=", converted_attribute_values)
           attribute_value_class = 'Wings::AggregatedValue'
           predicate = RDF::URI("http://example.com/wings#{key}")
 
+          # https://github.com/samvera/active_fedora/blob/master/lib/active_fedora/associations/builder/orders.rb#L27
+          # https://github.com/samvera/active_fedora/blob/master/lib/active_fedora/associations.rb#L327
+          #
           @klass.ordered_aggregation(key,
-                                     has_member_relation: predicate,
                                      class_name: attribute_value_class,
                                      type_validator: type_validator,
                                      through: :list_source)
+          @klass.orders(key,
+                        class_name: attribute_value_class,
+                        type_validator: type_validator,
+                        through: :list_source)
         end
 
         @klass

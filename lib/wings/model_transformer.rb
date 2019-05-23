@@ -72,10 +72,14 @@ module Wings
         #   This is probably the problem here, as OrderedAssocation needs to be
         #   used
         #   @see https://github.com/samvera/active_fedora/blob/master/lib/active_fedora/associations/orders_association.rb#L122
-        target_values = pcdm_object.send(:"#{key}")
-        aggregate_values = target_values.map do |agg_val|
+        proxy_key = "ordered_#{key.to_s.singularize}_proxies"
+        proxies = pcdm_object.send(proxy_key)
+        proxied_targets = proxies.target.map { |list_node| list_node.target }
+
+        aggregate_values = proxied_targets.map do |agg_val|
           agg_val.value.to_a
         end
+
         values = aggregate_values.flatten
         built.send(:"#{key}=", values)
       end
