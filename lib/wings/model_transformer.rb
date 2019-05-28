@@ -81,6 +81,14 @@ module Wings
         end
 
         values = aggregate_values.flatten
+        values = values.map do |value|
+          if value.is_a?(ActiveTriples::Resource)
+            value.to_uri
+          else
+            value
+          end
+        end
+
         built.send(:"#{key}=", values)
       end
 
