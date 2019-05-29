@@ -82,8 +82,18 @@ module Wings
 
         values = aggregate_values.flatten
         values = values.map do |value|
-          if value.is_a?(ActiveTriples::Resource)
-            value.to_uri
+
+          if value.is_a?(Wings::NestedResource)
+            value
+          elsif value.is_a?(ActiveTriples::Resource)
+            if value.attributes.key?("http://example.com/wings#valkyrie_id")
+              valkyrie_id_values = value.get_values("http://example.com/wings#valkyrie_id")
+              valkyrie_id = valkyrie_id_values.to_a.first
+              # Recurse
+              ActiveFedoraResource.new(id: ::Valkyrie::ID.new(valkyrie_id))
+            else
+              value.to_uri
+            end
           else
             value
           end

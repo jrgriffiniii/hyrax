@@ -6,6 +6,7 @@ module Wings
     property :title, predicate: ::RDF::Vocab::DC.title
     property :ordered_authors, predicate: ::RDF::Vocab::DC.creator
     property :ordered_nested, predicate: ::RDF::URI("http://example.com/ordered_nested")
+    property :valkyrie_id, predicate: ::RDF::URI("http://example.com/wings#valkyrie_id")
 
     def self.build_fragment_uri(uri)
       uri_id = uri.to_s.gsub('_:', '')

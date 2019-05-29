@@ -137,9 +137,25 @@ module Wings
         new_attributes.delete(key)
 
         attribute_value.each do |val|
+
           # Should this be a nested resource
-          if val.is_a?(Hash) && val.key?(:id) && val.fetch(:id, nil).is_a?(::Valkyrie::ID)
-            nested_resource_value = NestedResource.new(val)
+          if val.is_a?(Hash) && val.key?(:id)
+            valkyrie_id = val.fetch(:id, nil)
+
+            # If the NestedResource here is saved, then the ID for the
+            # AggregatedValue and NestedResource become identical (the graph
+            # becomes recursive)
+            nested_resource_value = NestedResource.new
+            nested_attributes = ActiveFedoraAttributes.new(val)
+            nested_resource_value.attributes = nested_attributes.result
+
+            if valkyrie_id.is_a?(::Valkyrie::ID)
+              nested_resource_value.valkyrie_id = RDF::Literal(valkyrie_id.to_s)
+            else
+              # Fix this
+              nested_resource_value.valkyrie_id = RDF::Literal(valkyrie_id)
+            end
+
             agg_value = AggregatedValue.new(value: [nested_resource_value])
           else
             agg_value = AggregatedValue.new(value: [val])
