@@ -74,7 +74,7 @@ module Wings
         #   @see https://github.com/samvera/active_fedora/blob/master/lib/active_fedora/associations/orders_association.rb#L122
         proxy_key = "ordered_#{key.to_s.singularize}_proxies"
         proxies = pcdm_object.send(proxy_key)
-        proxied_targets = proxies.target.map { |list_node| list_node.target }
+        proxied_targets = proxies.target.map(&:target)
 
         aggregate_values = proxied_targets.map do |agg_val|
           agg_val.value.to_a
@@ -82,7 +82,6 @@ module Wings
 
         values = aggregate_values.flatten
         values = values.map do |value|
-
           if value.is_a?(Wings::NestedResource)
             value
           elsif value.is_a?(ActiveTriples::Resource)
@@ -169,11 +168,8 @@ module Wings
     # @return [Class] a dyamically generated `Valkyrie::Resource` subclass
     #   mirroring the provided `ActiveFedora` model
     #
-    # rubocop:disable Metrics/AbcSize
     # rubocop:disable Metrics/CyclomaticComplexity
-    # rubocop:disable Metrics/MethodLength because metaprogramming a class
     #   results in long methods
-    # rubocop:disable Metrics/PerceivedComplexity
     def self.to_valkyrie_resource_class(klass:)
       relationship_keys = klass.respond_to?(:reflections) ? relationship_keys_for(reflections: klass.reflections) : []
       relationship_keys.delete('member_ids')

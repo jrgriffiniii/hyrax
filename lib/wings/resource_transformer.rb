@@ -137,7 +137,6 @@ module Wings
         new_attributes.delete(key)
 
         attribute_value.each do |val|
-
           # Should this be a nested resource
           if val.is_a?(Hash) && val.key?(:id)
             valkyrie_id = val.fetch(:id, nil)
@@ -149,12 +148,12 @@ module Wings
             nested_attributes = ActiveFedoraAttributes.new(val)
             nested_resource_value.attributes = nested_attributes.result
 
-            if valkyrie_id.is_a?(::Valkyrie::ID)
-              nested_resource_value.valkyrie_id = RDF::Literal(valkyrie_id.to_s)
-            else
-              # Fix this
-              nested_resource_value.valkyrie_id = RDF::Literal(valkyrie_id)
-            end
+            nested_resource_value.valkyrie_id = if valkyrie_id.is_a?(::Valkyrie::ID)
+                                                  RDF::Literal(valkyrie_id.to_s)
+                                                else
+                                                  # Fix this
+                                                  RDF::Literal(valkyrie_id)
+                                                end
 
             agg_value = AggregatedValue.new(value: [nested_resource_value])
           else
@@ -208,7 +207,7 @@ module Wings
           # This ensures that literal values can be appended as ListNodes for
           # ActiveFedora
           attribute_value_class = 'Wings::AggregatedValue'
-          predicate = RDF::URI("http://example.com/wings#{key}")
+          # predicate = RDF::URI("http://example.com/wings#{key}")
 
           # https://github.com/samvera/active_fedora/blob/master/lib/active_fedora/associations/builder/orders.rb#L27
           # https://github.com/samvera/active_fedora/blob/master/lib/active_fedora/associations.rb#L327
@@ -225,11 +224,9 @@ module Wings
           # The Reflection must already be constructed for the attribute  before
           # this can be invoked on the Class
           values = valkyrie_resource.attributes.fetch(key, [])
-          if !values.empty?
+          unless values.empty?
             value_classes = values.map(&:class)
-            if value_classes.include?(Hash)
-              @klass.accepts_nested_attributes_for(key)
-            end
+            @klass.accepts_nested_attributes_for(key) if value_classes.include?(Hash)
           end
         end
 
