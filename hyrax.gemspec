@@ -62,6 +62,20 @@ SUMMARY
   spec.add_dependency 'legato', '~> 0.3'
   spec.add_dependency 'linkeddata' # Required for getting values from geonames
   spec.add_dependency 'mailboxer', '~> 0.12'
+
+  # These should not be necessary, but without adding these as normal
+  # dependencies, errors were raised
+  spec.add_dependency 'mida'
+  spec.add_dependency 'rails-controller-testing'
+  spec.add_dependency 'rspec-its'
+  spec.add_dependency 'rspec-activemodel-mocks'
+  spec.add_dependency 'webdrivers'
+  spec.add_dependency 'database_cleaner'
+  spec.add_dependency 'capybara-maleficent'
+  spec.add_dependency 'webmock'
+  spec.add_dependency 'shoulda-matchers'
+  spec.add_dependency 'shoulda-callback-matchers'
+
   spec.add_dependency 'nest', '~> 3.1'
   spec.add_dependency 'noid-rails', '~> 3.0.0'
   spec.add_dependency 'oauth'
