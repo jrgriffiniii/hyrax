@@ -262,9 +262,9 @@ module Wings
         ordered_member_ids = ordered_member_ids.map { |ordered_member_id| ::Valkyrie::ID.new(ordered_member_id) } unless ordered_member_ids.nil?
 
         AttributeTransformer.run(pcdm_object, all_keys)
-                            .merge reflection_ids
-          .merge(additional_attributes)
-          .merge(member_ids: ordered_member_ids)
+                            .merge(reflection_ids)
+                            .merge(additional_attributes)
+                            .merge(member_ids: ordered_member_ids)
       end
 
       def reflection_ids
