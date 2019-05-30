@@ -148,12 +148,12 @@ module Wings
             nested_attributes = ActiveFedoraAttributes.new(val)
             nested_resource_value.attributes = nested_attributes.result
 
-            nested_resource_value.valkyrie_id = if valkyrie_id.is_a?(::Valkyrie::ID)
-                                                  RDF::Literal(valkyrie_id.to_s)
-                                                else
-                                                  # Fix this
-                                                  RDF::Literal(valkyrie_id)
-                                                end
+            nested_resource_value.alternate_ids = if valkyrie_id.is_a?(::Valkyrie::ID)
+                                                    [RDF::Literal(valkyrie_id.to_s)]
+                                                  else
+                                                    # Fix this
+                                                    [RDF::Literal(valkyrie_id)]
+                                                  end
 
             agg_value = AggregatedValue.new(value: [nested_resource_value])
           else

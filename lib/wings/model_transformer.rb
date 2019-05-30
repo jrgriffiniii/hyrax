@@ -85,8 +85,9 @@ module Wings
           if value.is_a?(Wings::NestedResource)
             value
           elsif value.is_a?(ActiveTriples::Resource)
-            if value.attributes.key?("http://example.com/wings#valkyrie_id")
-              valkyrie_id_values = value.get_values("http://example.com/wings#valkyrie_id")
+
+            if value.attributes.key?("http://example.com/alternate_ids")
+              valkyrie_id_values = value.get_values("http://example.com/alternate_ids")
               valkyrie_id = valkyrie_id_values.to_a.first
               # Recurse
               ActiveFedoraResource.new(id: ::Valkyrie::ID.new(valkyrie_id))
