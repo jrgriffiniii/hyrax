@@ -1,6 +1,7 @@
 source 'https://rubygems.org'
 
 # Please see hyrax.gemspec for dependency information.
+gem 'active-fedora', git: 'https://github.com/jrgriffiniii/active_fedora.git', branch: 'solr-conf-fix-generator'
 gemspec
 
 group :development, :test do
