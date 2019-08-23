@@ -35,6 +35,7 @@ module Hyrax
     def run_required_generators
       Bundler.with_clean_env do
         run 'bundle install'
+        run 'bundle update --conservative sass-rails'
       end
       say_status('info', '[Hyrax] GENERATING BLACKLIGHT', :blue)
       generate 'blacklight:install --devise'
